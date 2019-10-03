@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ungshowshim/screens/authen.dart';
 import 'package:ungshowshim/screens/my_service.dart';
 import 'package:ungshowshim/screens/my_style.dart';
 import 'package:ungshowshim/screens/register.dart';
@@ -27,7 +28,7 @@ class _HomeState extends State<Home> {
     if (firebaseUser != null) {
       MaterialPageRoute materialPageRoute = MaterialPageRoute(builder:(BuildContext context) => MyService());
       Navigator.of(context).pushAndRemoveUntil(materialPageRoute, (Route<dynamic> route) => false);
-      
+
     }
 
   }
@@ -60,7 +61,10 @@ class _HomeState extends State<Home> {
         'Sign In',
         style: TextStyle(color: Colors.white),
       ),
-      onPressed: () {},
+      onPressed: () {
+        MaterialPageRoute materialPageRoute = MaterialPageRoute(builder: (BuildContext context) => Authen());
+        Navigator.of(context).push(materialPageRoute);
+      },
     );
   }
 
