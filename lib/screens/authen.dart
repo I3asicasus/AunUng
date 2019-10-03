@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ungshowshim/screens/my_service.dart';
 
 class Authen extends StatefulWidget {
   @override
@@ -7,6 +9,8 @@ class Authen extends StatefulWidget {
 
 class _AuthenState extends State<Authen> {
 // Explicit
+  final formKay = GlobalKey<FormState>();
+  String email, password;
 
 // Method
 
@@ -21,13 +25,16 @@ class _AuthenState extends State<Authen> {
 
   Widget myContent() {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text("Ung Show Shim"),
-          emailText(),
-          passwordText(),
-        ],
+      child: Form(
+        key: formKay,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text("Ung Show Shim"),
+            emailText(),
+            passwordText(),
+          ],
+        ),
       ),
     );
   }
@@ -36,7 +43,11 @@ class _AuthenState extends State<Authen> {
     return Container(
       width: 250.0,
       child: TextFormField(
+        keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(labelText: "Email :"),
+        onSaved: (String value) {
+          email = value.trim();
+        },
       ),
     );
   }
@@ -45,9 +56,45 @@ class _AuthenState extends State<Authen> {
     return Container(
       width: 250.0,
       child: TextFormField(
+        obscureText: true,
         decoration: InputDecoration(labelText: "Password :"),
+        onSaved: (String value) {
+          password = value.trim();
+        },
       ),
     );
+  }
+
+  Future<void> checkAuthen() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    await firebaseAuth
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then((response) {
+      MaterialPageRoute materialPageRoute =
+          MaterialPageRoute(builder: (BuildContext context) => MyService());
+      Navigator.of(context).pushAndRemoveUntil(
+          materialPageRoute, (Route<dynamic> route) => false);
+    }).catchError((response) {
+      String title = response.code;
+      String message = response.message;
+      myAlert(title, message);
+    });
+  }
+
+  void myAlert(String title, String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("OK"),onPressed: (){Navigator.of(context).pop();},
+              )
+            ],
+          );
+        });
   }
 
   @override
@@ -62,7 +109,11 @@ class _AuthenState extends State<Authen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.navigate_next),onPressed: (){},
+        child: Icon(Icons.navigate_next),
+        onPressed: () {
+          formKay.currentState.save();
+          checkAuthen();
+        },
       ),
     );
   }
